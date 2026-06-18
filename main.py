@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from enum import Enum
+from database import engine
+from models import Base
 
 
 class AccountStatus(Enum): 
@@ -14,7 +16,7 @@ class Account(BaseModel):
     platform: str
     status: AccountStatus
 
-
+Base.metadata.create_all(engine)
 app = FastAPI()
 next_id = 1
 
