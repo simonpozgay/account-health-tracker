@@ -1,46 +1,43 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from enum import Enum
-from database import engine
-from models import Base
+from fastapi import FastAPI, HTTPException, Depends
+from sqlalchemy.orm import Session
+from database import engine, get_db
+from models import Base, Account
+from schemas import AccountCreate, AccountResponse
 
 
-class AccountStatus(Enum): 
-    HEALTHY = 1
-    BUYING = 2
-    EXHAUSTED = 3
-    DO_NOT_TOUCH = 4
-
-class Account(BaseModel): 
-    email: str
-    platform: str
-    status: AccountStatus
-
-Base.metadata.create_all(engine)
 app = FastAPI()
-next_id = 1
+Base.metadata.create_all(bind=engine)
 
-accounts: dict[int, Account] = {}
 
-@app.get("/accounts")
-def get_accounts(): 
-    return accounts
+@app.get("/accounts", response_model=list[AccountResponse])
+def get_accounts(db: Session = Depends(get_db)): 
+    return db.query(Account).all()
 
-@app.get("/accounts/{account_id}")
-def get_account(account_id: int): 
-    if account_id not in accounts: 
+@app.get("/accounts/{account_id}", response_model=AccountResponse)
+def get_account(account_id: int, db: Session = Depends(get_db)): 
+    query = db.query(Account).filter(Account.id == account_id).one_or_none()
+    
+    if query is None: 
         raise HTTPException(status_code=404, detail="Account not found")
-    return accounts[account_id]
+    return query
 
-@app.post("/accounts")
-def add_account(account: Account): 
-    global next_id
-    accounts[next_id] = account
-    next_id += 1
-    return account
+@app.post("/accounts", response_model=AccountResponse)
+def add_account(account: AccountCreate, db: Session = Depends(get_db)): 
+    db_account = Account(email=account.email, platform=account.platform)
 
-@app.delete("/accounts/{account_id}")
-def delete_account(account_id: int): 
-    if account_id not in accounts: 
+    db.add(db_account)
+    db.commit()
+    db.refresh(db_account)
+
+    return db_account
+
+@app.delete("/accounts/{account_id}", response_model=AccountResponse)
+def delete_account(account_id: int, db: Session = Depends(get_db)): 
+    target = db.query(Account).filter(Account.id == account_id).one_or_none()
+    
+    if target is None: 
         raise HTTPException(status_code=404, detail="Account not found")
-    return accounts.pop(account_id)
+
+    db.delete(target)
+    db.commit()
+    return target

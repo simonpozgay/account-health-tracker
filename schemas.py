@@ -6,6 +6,8 @@ class AccountCreate(BaseModel):
     email: str
     platform: str
 
+    model_config = {"from_attributes": True}
+
 class AccountResponse(BaseModel): 
     id: int
     email: str
