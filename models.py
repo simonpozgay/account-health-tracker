@@ -22,6 +22,6 @@ class Purchase(Base):
     name = Column(String, nullable=False)
     quantity = Column(Integer, nullable=False)
     date = Column(Date, nullable=False)
-    account_id = Column(Integer, ForeignKey('accounts.id'))
+    account_id = Column(Integer, ForeignKey('accounts.id'), nullable=False)
 
     account = relationship('Account', back_populates='purchases')
