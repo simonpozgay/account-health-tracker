@@ -1,8 +1,6 @@
 # Account Health Tracker
 
-A REST API for managing reseller accounts across multiple platforms. It tracks account metadata and purchase history, with the goal of computing a dynamic "health" status per account — indicating whether an account is ready to use, in cooldown, or exhausted.
-
-Built as a backend portfolio project to demonstrate FastAPI, SQLAlchemy, and clean API design.
+A REST API for managing reseller accounts across multiple platforms. It tracks account purchase history, with the goal of computing a dynamic "health" status per account — indicating whether an account is ready to use, in cooldown, or exhausted.
 
 ## Tech Stack
 
