@@ -6,7 +6,9 @@ class AccountCreate(BaseModel):
     email: str
     platform: str
 
-    model_config = {"from_attributes": True}
+class AccountUpdate(BaseModel): 
+    email: str | None
+    platform: str | None
 
 class AccountResponse(BaseModel): 
     id: int
@@ -22,6 +24,12 @@ class PurchaseCreate(BaseModel):
     quantity: int
     date: date
     account_id: int
+
+class PurchaseUpdate(BaseModel): 
+    name: str | None
+    quantity: int | None
+    date: date | None
+    account_id = int | None
 
 class PurchaseResponse(BaseModel): 
     id: int
